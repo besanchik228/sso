@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package SSOService;
+option go_package = "pkg/api/test";
+
+import "google/api/annotations.proto";
+
+service sso {
+    rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
+        option (google.api.http) = {
+            post: "/api/auth/register"
+        };
+    }
+    rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
+        option (google.api.http) = {
+            post: "/api/auth/login"
+        };
+    }
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+        option (google.api.http) = {
+            post: "/api/auth/refresh"
+        };
+    }
+    rpc LogOut(LogOutRequest) returns (LogOutResponse) {
+        option (google.api.http) = {
+            post: "/api/auth/logout"
+        };
+    }
+}
+
+message User {
+    string id = 1;
+    string login = 2;
+    string password = 3;
+}
+
+message UserPublic {
+    string id = 1;
+    string login = 2;
+}
+
+message RegisterUserRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message RegisterUserResponse {
+    bool ok = 1;
+    UserPublic user = 2;
+}
+
+message LoginUserRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginUserResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+    int64 access_token_time = 3;
+    string err = 4;
+}
+
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+    string access_token = 1;
+    int64 access_token_time = 2;
+}
+
+message LogOutRequest {
+    string refresh_token = 1;
+}
+
+message LogOutResponse {
+    bool ok = 1;
+}
