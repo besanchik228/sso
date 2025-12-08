@@ -31,8 +31,8 @@ func main() {
         logger.Logger().Fatal("cannot connect to database", zap.Error(err))
     }
 
-    ssoSrv := server.NewSSOServer(cfg.Database.Host,
-        fmt.Sprintf("%d", cfg.Database.Port),
+    ssoSrv := server.NewSsoServer(cfg.Database.Host,
+        int(cfg.Database.Port),
         cfg.Database.User,
         cfg.Database.Password,
         cfg.Database.DbName,

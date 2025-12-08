@@ -1,17 +1,20 @@
 package repository
 
 import (
-    "database/sql"
-    "fmt"
-    "sso/internal/models"
+	"database/sql"
+	"fmt"
+	"sso/internal/auth"
+	"sso/internal/models"
+
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 type Repository struct {
     db *sql.DB
 }
 
-func NewRepository(host, port, user, password, dbname, sslmode string) (*Repository, error) {
-    dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+func NewRepository(host string, port int, user, password, dbname, sslmode string) (*Repository, error) {
+    dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
         user, password, host, port, dbname, sslmode)
     db, err := sql.Open("pgx", dsn)
     if err != nil {
@@ -39,15 +42,21 @@ func (r *Repository) CreateUser(login, passwordHash string) (*models.User, error
     }, nil
 }
 
-func (r *Repository) CheckUser(login, passwordHash string) (*models.User, error) {
+func (r *Repository) CheckUser(login, password string) (*models.User, error) {
     u := &models.User{}
     err := r.db.QueryRow(
-        `SELECT id, login, password_hash FROM users WHERE login=$1 AND password_hash=$2`,
-        login, passwordHash,
+        `SELECT id, login, password_hash FROM users WHERE login=$1`,
+        login,
     ).Scan(&u.Id, &u.Login, &u.PasswordHash)
+    
     if err != nil {
         return nil, err
     }
+
+    if err = auth.CheckPassword(u.PasswordHash, password); err != nil {
+        return nil, err
+    }
+
     return u, nil
 }
 

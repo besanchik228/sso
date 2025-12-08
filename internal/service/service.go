@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"sso/internal/auth"
 	repo "sso/internal/repository"
 	pb "sso/pkg/api/test"
@@ -11,21 +12,19 @@ type Service struct {
 	repo *repo.Repository
 }
 
-func NewService(host, port, user, password, dbname, sslmode string) *Service {
+func NewService(host string, port int, user, password, dbname, sslmode string) *Service {
 	repository, err := repo.NewRepository(host, port, user, password, dbname, sslmode)
 	if err != nil {
+		log.Fatalf("repo in NewService !!!!!!!!!!!")
 		return nil
 	}
-	return &Service{repo: repository}
+	return &Service{repo: repository,}
 }
 
 func (s *Service) Login(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
-	hash_password, err := auth.HashPassword(r.Password)
+	u, err := s.repo.CheckUser(r.Login, r.Password)
 	if err != nil {
-		return nil, err
-	}
-	u, err := s.repo.CheckUser(r.Login, hash_password)
-	if err != nil {
+		log.Fatalf("repo in Login!!!!!!!!!!!!!!!%s", err)
 		return nil, err
 	}
 	access_token, refresh_token := auth.NewToken(u.Id, u.Login)
