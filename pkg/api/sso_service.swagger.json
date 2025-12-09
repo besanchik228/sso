@@ -185,6 +185,9 @@
         "accessTokenTime": {
           "type": "string",
           "format": "int64"
+        },
+        "err": {
+          "type": "string"
         }
       }
     },
@@ -196,6 +199,9 @@
         },
         "user": {
           "$ref": "#/definitions/SSOServiceUserPublic"
+        },
+        "err": {
+          "type": "string"
         }
       }
     },

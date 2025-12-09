@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sso/internal/auth"
 	"sso/internal/models"
+	"time"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
@@ -65,7 +66,7 @@ func (r *Repository) RevokeRefresh(token string) error {
     return err
 }
 
-func (r *Repository) NewRefreshToken(token string, userID string, expiresAt string) error {
+func (r *Repository) NewRefreshToken(token string, userID string, expiresAt time.Time) error {
     _, err := r.db.Exec(
         `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`,
         userID, token, expiresAt,

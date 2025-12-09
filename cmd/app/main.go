@@ -17,16 +17,13 @@ import (
 )
 
 func main() {
-    // init logger
     logger.Init()
 
-    // Загружаем конфиг
     cfg, err := config.LoadConfig("./config/config.yaml")
     if err != nil {
         logger.Logger().Fatal("cannot load config", zap.Error(err))
     }
 
-    // Подключаемся к БД
     if err != nil {
         logger.Logger().Fatal("cannot connect to database", zap.Error(err))
     }
@@ -38,7 +35,6 @@ func main() {
         cfg.Database.DbName,
         cfg.Database.SslMode,)
 
-    // gRPC сервер с interceptor
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GrpcPort))
     if err != nil {
         logger.Logger().Fatal("failed to listen", zap.Error(err))
@@ -55,7 +51,6 @@ func main() {
         }
     }()
 
-    // HTTP gateway
     mux := runtime.NewServeMux()
     opts := []grpc.DialOption{grpc.WithInsecure()}
     err = pb.RegisterSsoHandlerFromEndpoint(
