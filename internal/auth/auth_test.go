@@ -15,7 +15,6 @@ func TestNewToken(t *testing.T) {
     if access == "" || refresh == "" {
         t.Fatalf("expected non-empty tokens, got access=%q refresh=%q", access, refresh)
     }
-
     parsed, err := jwt.Parse(access, func(token *jwt.Token) (interface{}, error) {
         return secret, nil
     })
@@ -26,7 +25,6 @@ func TestNewToken(t *testing.T) {
 
 func TestRefresh(t *testing.T) {
     _, refresh, _ := NewToken("123", "testuser")
-
     access, err, ok := Refresh("123", "testuser", refresh)
     if !ok {
         t.Fatalf("expected ok=true, got false")
@@ -37,7 +35,6 @@ func TestRefresh(t *testing.T) {
     if access == "" {
         t.Fatalf("expected non-empty access token")
     }
-
     parsed, err := jwt.Parse(access, func(token *jwt.Token) (interface{}, error) {
         return secret, nil
     })
@@ -55,11 +52,9 @@ func TestPasswordHashing(t *testing.T) {
     if hash == "" {
         t.Fatalf("expected non-empty hash")
     }
-
     if err := CheckPassword(hash, password); err != nil {
         t.Fatalf("expected password to match, got error: %v", err)
     }
-
     if err := CheckPassword(hash, "wrongpassword"); err == nil {
         t.Fatalf("expected error for wrong password, got nil")
     }
@@ -74,12 +69,10 @@ func TestTokenExpiration(t *testing.T) {
     if err != nil {
         t.Fatalf("parse error: %v", err)
     }
-
     claims, ok := parsed.Claims.(jwt.MapClaims)
     if !ok {
         t.Fatalf("expected MapClaims")
     }
-
     exp := int64(claims["exp"].(float64))
     if exp <= time.Now().Unix() {
         t.Fatalf("expected exp in future, got %d", exp)
