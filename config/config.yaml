@@ -9,3 +9,6 @@ database:
   password: postgres
   dbname: sso_db
   sslmode: disable
+
+auth:
+  secret: 186534kol

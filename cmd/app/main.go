@@ -20,13 +20,6 @@ func main() {
     logger.Init()
 
     cfg, err := config.LoadConfig("./config/config.yaml")
-    if err != nil {
-        logger.Logger().Fatal("cannot load config", zap.Error(err))
-    }
-
-    if err != nil {
-        logger.Logger().Fatal("cannot connect to database", zap.Error(err))
-    }
 
     ssoSrv := server.NewSsoServer(cfg.Database.Host,
         int(cfg.Database.Port),

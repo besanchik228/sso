@@ -1,12 +1,16 @@
 package service
 
 import (
-	"sso/internal/logger"
 	"context"
 	"sso/internal/auth"
+	"sso/internal/logger"
 	repo "sso/internal/repository"
 	pb "sso/pkg/api/test"
 	"time"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Service struct {
@@ -16,7 +20,7 @@ type Service struct {
 func NewService(host string, port int, user, password, dbname, sslmode string) *Service {
 	repository, err := repo.NewRepository(host, port, user, password, dbname, sslmode)
 	if err != nil {
-		logger.Logger().Fatal("service creation error")
+		logger.Logger().Fatal("service creation error (from repo.NewRepository())", zap.Error(err))
 		return nil
 	}
 	return &Service{repo: repository,}
@@ -25,21 +29,12 @@ func NewService(host string, port int, user, password, dbname, sslmode string) *
 func (s *Service) Login(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	u, err := s.repo.CheckUser(r.Login, r.Password)
 	if err != nil {
-		return &pb.LoginUserResponse{
-			AccessToken: "",
-			AccessTokenTime: 0,
-			RefreshToken: "",
-			Err: "401 error / 16 error / UNAUTHENTICATED",
-		}, nil
+		return nil, err
 	}
 	access_token, refresh_token, ok := auth.NewToken(u.Id, u.Login)
 	if !ok {
-		return &pb.LoginUserResponse{
-			AccessToken: "",
-			AccessTokenTime: 0,
-			RefreshToken: "",
-			Err: "500 error / 13 error / INTERNAL",
-		}, nil
+		logger.Logger().Error("creation token error (from auth.NewToken())", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal")
 	}
 	s.repo.NewRefreshToken(refresh_token, u.Id, time.Now().Add(time.Hour * 24))
 	return &pb.LoginUserResponse{
@@ -54,16 +49,12 @@ func (s *Service) Login(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginU
 func (s *Service) Register(ctx context.Context, r *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	hash_password, err := auth.HashPassword(r.Password)
 	if err != nil {
-		logger.Logger().Error("hash password error (from auth.HashPassword())")
-		return &pb.RegisterUserResponse{
-			Ok: false,
-			User: nil,
-			Err: "500 error / 13 error / INTERNAL",
-		}, nil
+		logger.Logger().Error("hash password error (from auth.HashPassword())", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal")
 	}
 	u, err := s.repo.CreateUser(r.Login, hash_password)
 	if err != nil {
-		return &pb.RegisterUserResponse{Ok: false, Err: "409 error / 6 error / ALREADY_EXISTS", User: nil}, err
+		return nil, err
 	}
 	return &pb.RegisterUserResponse{Ok: true, Err: "", User: &pb.UserPublic{
 		Id: u.Id,
@@ -74,27 +65,18 @@ func (s *Service) Register(ctx context.Context, r *pb.RegisterUserRequest) (*pb.
 func (s *Service) Refresh(ctx context.Context, r *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
 	userID, login, err := s.repo.GetUserIDByRefreshToken(r.RefreshToken)
 	if err != nil {
-		return &pb.RefreshTokenResponse{
-			AccessToken: "",
-			AccessTokenTime: 0,
-			Err: "401 error / 16 error / UNAUTHENTICATED",
-		}, nil
+		return nil, status.Errorf(codes.InvalidArgument, "refresh token not found")
+	}
+	if !s.repo.ValidToken(r.RefreshToken) {
+		return nil, status.Errorf(codes.InvalidArgument, "token has expired")
 	}
 	access_token, err, ok := auth.Refresh(userID, login, r.RefreshToken)
 	if !ok {
-		return &pb.RefreshTokenResponse{
-			AccessToken: "",
-			AccessTokenTime: 0,
-			Err: "500 error / 13 error / INTERNAL",
-		}, nil
+		return nil, status.Errorf(codes.Internal, "internal")
 	}
 	if err != nil {
-		logger.Logger().Error("refresh password error (from auth.Refresh())")
-		return &pb.RefreshTokenResponse{
-			AccessToken: "",
-			AccessTokenTime: 0,
-			Err: "500 error / 13 error / INTERNAL",
-		}, nil
+		logger.Logger().Error("refresh password error (from auth.Refresh())", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "internal")
 	}
 	return &pb.RefreshTokenResponse{
 		AccessToken: access_token,
@@ -105,7 +87,7 @@ func (s *Service) Refresh(ctx context.Context, r *pb.RefreshTokenRequest) (*pb.R
 func (s *Service) LogOut(ctx context.Context, r *pb.LogOutRequest) (*pb.LogOutResponse, error) {
 	err := s.repo.RevokeRefresh(r.RefreshToken)
 	if err != nil {
-		return &pb.LogOutResponse{Ok: false}, nil
+		return nil, err
 	}
 	return &pb.LogOutResponse{Ok: true}, nil
 }

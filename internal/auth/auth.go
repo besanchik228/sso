@@ -8,7 +8,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var secret = []byte("secret")
+var secret = []byte("")
+
+func Init(s string) {
+	secret = []byte(s)
+}
 
 func NewToken(userID, login string) (string, string, bool) {
 	ok := true
@@ -47,7 +51,7 @@ func Refresh(userID, login, refreshToken string) (string, error, bool) {
 	access := jwt.NewWithClaims(jwt.SigningMethodHS256, accessData)
 	accessToken, err := access.SignedString(secret)
 	if err != nil {
-		logger.Logger().Error("refresh_token creation error (from auth.NewToken())")
+		logger.Logger().Error("access_token creation error (from auth.Refresh())")
 		ok = false
 	}
 	return accessToken, nil, ok
