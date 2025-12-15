@@ -35,21 +35,16 @@ var (
 	_ = metadata.Join
 )
 
-var filter_Sso_RegisterUser_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_Sso_RegisterUser_0(ctx context.Context, marshaler runtime.Marshaler, client SsoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RegisterUserRequest
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_RegisterUser_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.RegisterUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -60,31 +55,23 @@ func local_request_Sso_RegisterUser_0(ctx context.Context, marshaler runtime.Mar
 		protoReq RegisterUserRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_RegisterUser_0); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.RegisterUser(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_Sso_LoginUser_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_Sso_LoginUser_0(ctx context.Context, marshaler runtime.Marshaler, client SsoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq LoginUserRequest
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_LoginUser_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.LoginUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -95,31 +82,23 @@ func local_request_Sso_LoginUser_0(ctx context.Context, marshaler runtime.Marsha
 		protoReq LoginUserRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_LoginUser_0); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.LoginUser(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_Sso_RefreshToken_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_Sso_RefreshToken_0(ctx context.Context, marshaler runtime.Marshaler, client SsoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq RefreshTokenRequest
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_RefreshToken_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.RefreshToken(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -130,31 +109,23 @@ func local_request_Sso_RefreshToken_0(ctx context.Context, marshaler runtime.Mar
 		protoReq RefreshTokenRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_RefreshToken_0); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.RefreshToken(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_Sso_LogOut_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_Sso_LogOut_0(ctx context.Context, marshaler runtime.Marshaler, client SsoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq LogOutRequest
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_LogOut_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.LogOut(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -165,10 +136,7 @@ func local_request_Sso_LogOut_0(ctx context.Context, marshaler runtime.Marshaler
 		protoReq LogOutRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Sso_LogOut_0); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.LogOut(ctx, &protoReq)

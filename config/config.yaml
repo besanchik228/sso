@@ -3,11 +3,11 @@ server:
   http_port: 8080
 
 database:
-  host: localhost
+  host: db
   port: 5432
   user: postgres
   password: postgres
-  dbname: sso_db
+  dbname: sso
   sslmode: disable
 
 auth:

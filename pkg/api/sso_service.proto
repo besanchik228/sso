@@ -9,21 +9,25 @@ service sso {
     rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
         option (google.api.http) = {
             post: "/api/auth/register"
+            body: "*"
         };
     }
     rpc LoginUser(LoginUserRequest) returns (LoginUserResponse) {
         option (google.api.http) = {
             post: "/api/auth/login"
+            body: "*"
         };
     }
     rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
         option (google.api.http) = {
             post: "/api/auth/refresh"
+            body: "*"
         };
     }
     rpc LogOut(LogOutRequest) returns (LogOutResponse) {
         option (google.api.http) = {
             post: "/api/auth/logout"
+            body: "*"
         };
     }
 }

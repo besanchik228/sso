@@ -1,6 +1,11 @@
 # version: "3.9"
 
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
   db:
     image: postgres:15
     container_name: sso_db
@@ -14,7 +19,7 @@ services:
     ports:
       - "5432:5432"
 
-  migrate:
+  migrate-up:
     image: migrate/migrate
     depends_on:
       - db
@@ -26,23 +31,30 @@ services:
     volumes:
       - ./migrations:/migrations
 
+  migrate-down:
+    image: migrate/migrate
+    depends_on:
+      - db
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://postgres:postgres@db:5432/sso?sslmode=disable",
+      "down"
+    ]
+    volumes:
+      - ./migrations:/migrations
+
   sso:
     build: .
     container_name: sso_service
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=sso
-      - DB_SSLMODE=disable
     volumes:
-      - ./config:/app/config:ro   # абсолютный путь внутри контейнера
+      - ./config:/app/config:ro
     ports:
       - "50051:50051"
+      - "8080:8080"
     depends_on:
       - db
-      - migrate
+      - migrate-up
+      - redis
 
 volumes:
   db_data:

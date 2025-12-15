@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
+	"regexp"
 	"sso/internal/auth"
 	"sso/internal/logger"
 	repo "sso/internal/repository"
 	pb "sso/pkg/api/test"
+	"sso/internal/security"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,6 +18,7 @@ import (
 
 type Service struct {
 	repo *repo.Repository
+	limiter *security.LoginLimiter
 }
 
 func NewService(host string, port int, user, password, dbname, sslmode string) *Service {
@@ -23,12 +27,16 @@ func NewService(host string, port int, user, password, dbname, sslmode string) *
 		logger.Logger().Fatal("service creation error (from repo.NewRepository())", zap.Error(err))
 		return nil
 	}
-	return &Service{repo: repository}
+	return &Service{repo: repository, limiter: security.NewLoginLimiter("redis:6379", "", 0, 5, time.Minute)}
 }
 
 func (s *Service) Login(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
+
+	if err := s.limiter.Check(ctx, r.Login); err != nil {
+		return nil, err
+	}
 
 	u, err := s.repo.CheckUser(r.Login, r.Password, ctx)
 	if err != nil {
@@ -50,15 +58,28 @@ func (s *Service) Login(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginU
 }
 
 func (s *Service) Register(ctx context.Context, r *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	if len(r.Login) < 3 && len(r.Login) > 32 {
+	if len(r.Login) < 3 || len(r.Login) > 32 {
 		return nil, status.Errorf(codes.InvalidArgument, "size of login must be from 3 to 32")
 	}
 
-	if len(r.Password) < 8 && len(r.Password) > 64 {
-		return nil, status.Errorf(codes.InvalidArgument, "size of password must be from 8 to 64")
+	if len(r.Password) < 8 || len(r.Password) > 31 {
+		return nil, status.Errorf(codes.InvalidArgument, "size of password must be from 8 to 31")
+	}
+
+	ValidateCredentials := func(login, password string) error {
+		var loginRegex = regexp.MustCompile(`^[a-zA-Z0-9_]{3,32}$`)
+		if !loginRegex.MatchString(login) {
+			return errors.New("login must be only letters, digits, underscore")
+		}
+
+		return nil
+	}
+
+	if err := ValidateCredentials(r.Login, r.Password); err != nil {
+		return nil, err
 	}
 
 	hash_password, err := auth.HashPassword(r.Password)
@@ -77,7 +98,7 @@ func (s *Service) Register(ctx context.Context, r *pb.RegisterUserRequest) (*pb.
 }
 
 func (s *Service) Refresh(ctx context.Context, r *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	userID, login, err := s.repo.GetUserIDByRefreshToken(r.RefreshToken, ctx)
@@ -102,7 +123,7 @@ func (s *Service) Refresh(ctx context.Context, r *pb.RefreshTokenRequest) (*pb.R
 }
 
 func (s *Service) LogOut(ctx context.Context, r *pb.LogOutRequest) (*pb.LogOutResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	s.repo.RevokeRefresh(r.RefreshToken, ctx)

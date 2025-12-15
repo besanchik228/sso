@@ -58,7 +58,7 @@ func Refresh(userID, login, refreshToken string) (string, error, bool) {
 }
 
 func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 31)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	return string(bytes), err
 }
 
