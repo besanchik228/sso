@@ -7,8 +7,8 @@ import (
 	"sso/internal/auth"
 	"sso/internal/logger"
 	repo "sso/internal/repository"
-	pb "sso/pkg/api/test"
 	"sso/internal/security"
+	pb "sso/pkg/api/test"
 	"time"
 
 	"go.uber.org/zap"
@@ -21,13 +21,13 @@ type Service struct {
 	limiter *security.LoginLimiter
 }
 
-func NewService(host string, port int, user, password, dbname, sslmode string) *Service {
+func NewService(host string, port int, user, password, dbname, sslmode, redis_host, redis_password string, limit int) *Service {
 	repository, err := repo.NewRepository(host, port, user, password, dbname, sslmode)
 	if err != nil {
 		logger.Logger().Fatal("service creation error (from repo.NewRepository())", zap.Error(err))
 		return nil
 	}
-	return &Service{repo: repository, limiter: security.NewLoginLimiter("redis:6379", "", 0, 5, time.Minute)}
+	return &Service{repo: repository, limiter: security.NewLoginLimiter("redis:6379", redis_password, 0, limit, time.Minute)}
 }
 
 func (s *Service) Login(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {

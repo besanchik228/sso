@@ -32,7 +32,6 @@ func NewLoginLimiter(addr string, password string, db int, limit int, window tim
 }
 
 func (l *LoginLimiter) Check(ctx context.Context, login string) error {
-	logger.Logger().Error("check")
 	key := fmt.Sprintf("login_attempts:%s", login)
 	count, err := l.Client.Incr(ctx, key).Result()
 	if err != nil {

@@ -11,6 +11,13 @@ type Config struct {
 	Server   ServerConfig   `yaml:"server"`
 	Database DatabaseConfig `yaml:"database"`
 	Auth     AuthConfig     `yaml:"auth"`
+	Redis    RedisConfig    `yaml:"redis"`
+}
+
+type RedisConfig struct {
+	Host	 string `yaml:"host"`
+	Password string `yaml:"password"`
+	Limit    int    `yaml:"limit"`
 }
 
 type AuthConfig struct {

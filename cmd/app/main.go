@@ -19,14 +19,18 @@ import (
 func main() {
     logger.Init()
 
-    cfg, err := config.LoadConfig("./config/config.yaml")
+    cfg, _ := config.LoadConfig("./config/config.yaml")
 
     ssoSrv := server.NewSsoServer(cfg.Database.Host,
         int(cfg.Database.Port),
         cfg.Database.User,
         cfg.Database.Password,
         cfg.Database.DbName,
-        cfg.Database.SslMode,)
+        cfg.Database.SslMode,
+        cfg.Database.Host,
+        cfg.Redis.Password,
+        cfg.Redis.Limit,
+    )
 
     lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.GrpcPort))
     if err != nil {

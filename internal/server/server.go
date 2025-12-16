@@ -10,6 +10,6 @@ type sso_server struct {
 	service *service.Service
 }
 
-func NewSsoServer(host string, port int, user, password, dbname, sslmode string) *sso_server {
-	return &sso_server{service: service.NewService(host, port, user, password, dbname, sslmode)}
+func NewSsoServer(host string, port int, user, password, dbname, sslmode, redis_host, redis_password string, limit int) *sso_server {
+	return &sso_server{service: service.NewService(host, port, user, password, dbname, sslmode, redis_host, redis_password, limit)}
 }

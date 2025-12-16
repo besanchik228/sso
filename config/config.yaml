@@ -3,7 +3,7 @@ server:
   http_port: 8080
 
 database:
-  host: db
+  host: sso_db
   port: 5432
   user: postgres
   password: postgres
@@ -12,3 +12,8 @@ database:
 
 auth:
   secret: 186534kol
+
+redis:
+  addr: "redis:6379"
+  password: 
+  limit: 5
