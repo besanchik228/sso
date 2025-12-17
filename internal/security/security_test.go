@@ -58,7 +58,6 @@ func TestLoginLimiter_BlocksAfterLimit(t *testing.T) {
         t.Fatalf("unexpected error on second attempt: %v", err)
     }
 
-    // третья должна вернуть ResourceExhausted
     err = limiter.Check(ctx, "user")
     if err == nil {
         t.Fatal("expected error, got nil")
