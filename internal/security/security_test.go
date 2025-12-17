@@ -82,7 +82,6 @@ func TestLoginLimiter_SetsTTL(t *testing.T) {
         t.Fatalf("unexpected error: %v", err)
     }
 
-    // проверяем, что ключ имеет TTL
     ttl := s.TTL("login_attempts:user")
     if ttl <= 0 {
         t.Errorf("expected TTL > 0, got %v", ttl)
