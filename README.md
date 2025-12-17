@@ -157,14 +157,3 @@ docker exec -it sso_db psql -U postgres -d sso
 
 - Docker 20.10+
 - Docker Compose 2.0+
-
----
-
-## ⚠️ Примечание
-
-> В `docker-compose.yml` опечатка: `:roок` → `:ro` (read-only)
-
-```yaml
-volumes:
-  - ./config:/app/config:ro  # исправить
-```
